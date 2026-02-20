@@ -1,0 +1,6 @@
+Applications:
+    pf_learning:
+        app_types:
+            - PF_learningApp
+        content_directory: ${ROOT_DIR}/doc/content
+        log_default: WARNING
