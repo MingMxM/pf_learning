@@ -18,4 +18,6 @@ In paraview, warp mesh by displacement vector can show the shaoe change of the m
 
 # 05.Real fluid EOS
 The real water equation of state is used to calculate fluid properties.
- 
+
+# 06.Tracer
+The tracer is added to the moddel.
