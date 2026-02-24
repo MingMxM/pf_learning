@@ -70,7 +70,7 @@
   temperature = temperature
   coupling_type = ThermoHydro
   gravity = '0 0 0'
-  fp = true_water  
+  fp = tabulated_water  
 []
 
 [BCs]
@@ -91,6 +91,15 @@
 [FluidProperties]
     [true_water]
         type = Water97FluidProperties
+    []
+    [tabulated_water]
+        type = TabulatedFluidProperties
+        # fp = true_water
+        # temperature_min = 275
+        # interpolated_properties = 'density enthalpy internal_energy viscosity'
+        # fluid_property_output_file = water97_tabulated.csv
+        # Comment out the fp parameter and uncomment below to use the newly generated tabulation
+        fluid_property_file = water97_tabulated.csv
     []
 []
 

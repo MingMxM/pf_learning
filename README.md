@@ -16,3 +16,6 @@ The simple simulation with added heat advection and conduction has been created.
 The solid mechanics is added to the basic simulation.
 In paraview, warp mesh by displacement vector can show the shaoe change of the model.
 
+# 05.Real fluid EOS
+The real water equation of state is used to calculate fluid properties.
+ 
