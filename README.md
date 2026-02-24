@@ -6,3 +6,8 @@ Mesh has been created.
 
 # 01.Single fluid
 The simple simulation of single fluid injection into an aquifer has been created.
+
+# 02.Numerical issues has been checked
+
+# 03.Heat transfer
+The simple simulation with added heat advection and conduction has been created.
