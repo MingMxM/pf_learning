@@ -11,3 +11,8 @@ The simple simulation of single fluid injection into an aquifer has been created
 
 # 03.Heat transfer
 The simple simulation with added heat advection and conduction has been created.
+
+# 04.Solid mechanics
+The solid mechanics is added to the basic simulation.
+In paraview, warp mesh by displacement vector can show the shaoe change of the model.
+
