@@ -21,3 +21,6 @@ The real water equation of state is used to calculate fluid properties.
 
 # 06.Tracer
 The tracer is added to the moddel.
+
+# 07.Chemical reaction
+One chemical reaction is added to considere precipation and dissolution.
