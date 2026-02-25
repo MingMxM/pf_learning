@@ -24,3 +24,6 @@ The tracer is added to the moddel.
 
 # 07.Chemical reaction
 One chemical reaction is added to considere precipation and dissolution.
+
+# 08.PorousFlowSink
+PorousFlowSink is used to set the boundary condition
