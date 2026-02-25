@@ -26,7 +26,10 @@ The tracer is added to the moddel.
 One chemical reaction is added to considere precipation and dissolution.
 
 # 08.PorousFlowSink
-PorousFlowSink is used to set the boundary condition
+PorousFlowSink is used to set the boundary condition.
 
 # 10.Kernels and Materials
-Kernels and materials are used to unleash the full power of porous flow
+Kernels and materials are used to unleash the full power of porous flow.
+
+# 13.More elaborate chemistry
+More elaborate chemistry is added in this model.
