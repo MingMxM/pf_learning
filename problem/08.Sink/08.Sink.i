@@ -66,7 +66,7 @@
   van_genuchten_alpha = 1E-6
   van_genuchten_m = 0.6
 []
-        
+
 [BCs]
   [production]
     type = PorousFlowSink
