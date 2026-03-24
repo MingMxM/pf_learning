@@ -36,3 +36,6 @@ More elaborate chemistry is added in this model.
 
 # 14.Benchmark problems in CO2 storage in saline aquifers
 1D radial flow from an injection well
+
+# 15.Density-driven convective mixing
+Converge problem met when the grid number is 40*40, but no problem when grid number is 20*20
