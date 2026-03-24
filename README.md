@@ -39,3 +39,6 @@ More elaborate chemistry is added in this model.
 
 # 15.Density-driven convective mixing
 Converge problem met when the grid number is 40*40, but no problem when grid number is 20*20
+
+# 16.Two phase immiscible flow
+CO2 is injected into a a fully liquid saturated model.
