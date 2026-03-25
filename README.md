@@ -43,6 +43,8 @@ Converge problem met when the grid number is 40*40, but no problem when grid num
 # 16.Two phase immiscible flow
 CO2 is injected into a a fully liquid saturated model.
 
+# 17. Two phase miscible flow
+CO2 is injected into a liquid saturated model.
 
 # 18.A case of Hydrogen storage in saline aquifer
 In this case a userdefined fluid properties class is written. This part is what I need to learn.
