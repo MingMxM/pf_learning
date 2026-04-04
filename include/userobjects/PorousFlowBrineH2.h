@@ -15,7 +15,7 @@ class BrineFluidProperties;
 class HystreSinglePhaseFluidProperties;
 class SinglePhaseFluidProperties;
 class Water97FluidProperties;
-
+class PorousFlowBrineH2;
 
 /**
  * Specialized class for brine and H2 base on
@@ -62,7 +62,7 @@ public:
    * @param pressure phase pressure (Pa)
    * @param temperature phase temperature (K)
    * @param Xnacl NaCl mass fraction (kg/kg)
-   * @param[out] xh2 mole fraction of CO2 in liquid
+   * @param[out] xh2 mole fraction of H2 in liquid
    * @param[out] yh2o mole fraction of H2O in gas
    */
   void equilibriumMoleFractions(const ADReal & pressure,
@@ -77,7 +77,7 @@ public:
    * @param pressure phase pressure (Pa)
    * @param temperature phase temperature (K)
    * @param Xnacl NaCl mass fraction (kg/kg)
-   * @param[out] Xh2 mass fraction of CO2 in liquid (kg/kg)
+   * @param[out] Xh2 mass fraction of h2 in liquid (kg/kg)
    * @param[out] Yh2o mass fraction of H2O in gas (kg/kg)
    */
   void equilibriumMassFractions(const ADReal & pressure,
@@ -93,7 +93,7 @@ public:
    * @param pressure phase pressure (Pa)
    * @param temperature phase temperature (K)
    * @param Xnacl NaCl mass fraction (kg/kg)
-   * @param Z total mass fraction of CO2 component
+   * @param Z total mass fraction of H2 component
    * @param[out] PhaseStateEnum current phase state
    * @param[out] FluidStateProperties data structure
    */
@@ -169,7 +169,66 @@ public:
    */
   ADReal henryConstant(const ADReal & temperature) const;
 
+  /**
+   * Apparent molar volume of H2 in H2O (Eq. (14) of Li et al)
+   *
+   * @param pressure fluid pressure (Pa)
+   * @param temperature fluid temperature (K)
+   * @return molar volume (m^3/mol)
+   */
+  ADReal molarVolume(const ADReal & pressure, const ADReal & temperature) const;
 
+  /**
+   * Poynting factor (Eq. (16) of Li et al)
+   *
+   * @param pressure fluid pressure (Pa)
+   * @param temperature fluid temperature (K)
+   * @return Poynting factor
+   */
+  ADReal poyntingFactor(const ADReal & pressure, const ADReal & temperature) const;
+
+  /**
+   * Activity coefficient of H2 in brine (Eq. (17) of Li et al)
+   * Note: this is gamma, not ln(gamma) as in Eq. (17)
+   *
+   * @param temperature fluid temperature (K)
+   * @param mnacl molality of NaCl in solution (mol/kg)
+   * @return gamma the activity coefficient
+   */
+  ADReal activityCoefficient(const ADReal & temperature, const ADReal & mnacl) const;
+
+  /**
+   * Mole fraction of H2O in gas phase (yH2O)  (Dalton's law)
+   *
+   * @param pressure fluid pressure (Pa)
+   * @param temperature fluid temperature (K)
+   * @return yH2O the mole fraction of H2O in gas phase
+   */
+  ADReal yh2o(const ADReal & pressure, const ADReal & temperature) const;
+
+  /**
+   * Fugactiy coefficient of H2  (Eq. (8) of Li et al)
+   *
+   * @param pressure fluid pressure (Pa)
+   * @param temperature fluid temperature (K)
+   * @return fugacity coefficient (-)
+   */
+  ADReal fugacityCoefficient(const ADReal & pressure, const ADReal & temperature) const;
+
+  /**
+   * Molality (mol/kg) of H2 in liquid phase (Eq. (6) of Li et al)
+   * Note: this is molality, not ln(molality) as in Eq. (6)
+   * Note: There is a typo in Eq. (6) from Li et al. The last term should be '+ 4.0166'
+   * instead of '- 4.0166'
+   *
+   * @param pressure fluid pressure (Pa)
+   * @param temperature fluid temperature (K)
+   * @param mnacl molality of NaCl in solution (mol/kg)
+   * @return molality of H2 in liquid phase (mol/kg)
+   */
+  ADReal equilibriumMolality(const ADReal & pressure,
+                               const ADReal & temperature,
+                               const ADReal & mnacl) const;
 
   /**
    * The index of the salt component
@@ -177,110 +236,35 @@ public:
    */
   unsigned int saltComponentIndex() const { return _salt_component; };
 
-
-
-  /**
-   * Enthalpy of dissolution of gas phase CO2 in brine calculated using Henry's constant
-   * From Himmelblau, Partial molal heats and entropies of solution for gases dissolved
-   * in water from the freezing to the near critical point, J. Phys. Chem. 63 (1959).
-   * Correction due to salinity from Battistelli et al, A fluid property module for the
-   * TOUGH2 simulator for saline brines with non-condensible gas, Proc. Eighteenth Workshop
-   * on Geothermal Reservoir Engineering (1993).
-   *
-   * @param temperature fluid temperature (K)
-   * @param Xnacl NaCl mass fraction (kg/kg)
-   * @return enthalpy of dissolution (J/kg)
-   */
-  ADReal enthalpyOfDissolutionGas(const ADReal & temperature, const ADReal & Xnacl) const;
-
-  /**
-   * Enthalpy of dissolution of CO2 in brine calculated using linear fit to model of
-   * Duan and Sun, An improved model calculating CO2 solubility in pure water and aqueous NaCl
-   * solutions from 273 to 533 K and from 0 to 2000 bar, Chemical geology, 193, 257--271 (2003).
-   *
-   * In the region of interest, the more complicated model given in Eq. (8) of Duan and Sun
-   * is well approximated by a simple linear fit (R^2 = 0.9997).
-   *
-   * Note: as the effect of salt mass fraction is small, it is not included in this function.
-   *
-   * @param temperature fluid temperature (K)
-   * @return enthalpy of dissolution (J/kg)
-   */
-  ADReal enthalpyOfDissolution(const ADReal & temperature) const;
-
-  /**
-   * Mole fractions of CO2 in brine and water vapor in CO2 at equilibrium in the low
-   * temperature regime (T <= 99C).
-   *
-   * @param pressure phase pressure (Pa)
-   * @param temperature phase temperature (K)
-   * @param Xnacl NaCl mass fraction (kg/kg)
-   * @param[out] xco2 mole fraction of CO2 in liquid
-   * @param[out] yh2o mass fraction of mole in gas
-   */
-  void equilibriumMoleFractionsLowTemp(const ADReal & pressure,
-                                       const ADReal & temperature,
-                                       const ADReal & Xnacl,
-                                       ADReal & xco2,
-                                       ADReal & yh2o) const;
-
-  /**
-   * Function to solve for yh2o and xco2 iteratively in the elevated temperature regime (T > 100C)
-   *
-   * @param pressure gas pressure (Pa)
-   * @param temperature fluid temperature (K)
-   * @param Xnacl NaCl mass fraction (kg/kg)
-   * @param co2_density CO2 density (kg/m^3)
-   * @param[out] xco2 mole fraction of CO2 in liquid phase (-)
-   * @param[out] yh2o mole fraction of H2O in gas phase (-)
-   */
-  void solveEquilibriumMoleFractionHighTemp(Real pressure,
-                                            Real temperature,
-                                            Real Xnacl,
-                                            Real co2_density,
-                                            Real & xco2,
-                                            Real & yh2o) const;
+  virtual Real totalMassFraction(
+      Real pressure, Real temperature, Real Xnacl, Real saturation, unsigned int qp) const override;
 
 protected:
   /// Check the input variables
   virtual void checkVariables(Real pressure, Real temperature) const;
-
-  /**
-   * Binary interaction coefficient of H2, N2, and CH4 (Eq.(26) of Li et al)
-   * 
-   * @param temperature fluid temperature (K)
-   * @param a array of constans for evaluation of Eq.(26)
-   * @return binary interaction coefficient (m^3/mol)
-   */
-  ADReal binaryInteractionCoeff(const ADReal & temperature,
-                                const std::array<Real, 4> & a) const;
-
   /// Salt component index
   const unsigned int _salt_component;
   /// Fluid properties UserObject for water
   const BrineFluidProperties & _brine_fp;
   /// Fluid properties UserObject for the H2O
-  const SinglePhaseFluidProperties & _H2O_fp;
+  const SinglePhaseFluidProperties & _h2o_fp;
   /// Fluid properties UserObject for the H2
   const HystreSinglePhaseFluidProperties & _h2_fp;
   /// Molar mass of water (kg/mol)
   const Real _Mh2o;
   /// Inverse of molar mass of H2O (mol/kg)
   const Real _invMh2o;
-  
-  /// Molar mass of CO2 (kg/mol)
-  const Real _Mco2;
+  /// Natural logarithm of inverse of molar mass of H2O (mol/kg)
+  const Real _ln_invMh2o;
+  /// Molar mass of H2 (kg/mol)
+  const Real _Mh2;
   /// Molar mass of NaCL
   const Real _Mnacl;
-  /// Molar gas constant in bar cm^3 /(K mol)
-  const Real _Rbar;
-  /// Temperature below which the Spycher, Pruess & Ennis-King (2003) model is used (K)
-  const Real _Tlower;
-  /// Temperature above which the Spycher & Pruess (2010) model is used (K)
-  const Real _Tupper;
-  /// Minimum Z - below this value all CO2 will be dissolved. This reduces the
+  /// Minimum Z - below this value all H2 will be dissolved. This reduces the
   /// computational burden when small values of Z are present
   const Real _Zmin;
-  /// Henry's coefficeients for CO2
-  const std::vector<Real> _co2_henry;
+  /// Henry constant coefficients
+  const std::array<Real, 5> _a{{2.68721e-5, -0.05121, 33.55196, -3411.0432, -31258.74683}};
+  /// Poynting factor coefficients
+  const std::array<Real, 4> _b{{6.156755, -2.502396e-2, 4.140593e-5, -1.322988e-3}};
 };

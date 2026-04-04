@@ -5,7 +5,7 @@
 # Inject 10,000 kg H2 over 5 days, then store for 30 days, then produce for 10 days
 inject_mass = 1E4
 inject_time = 5
-store_time = 30
+store_time = 5
 produce_mass = 1E4
 produce_time = 10
 end_time = '${fparse inject_time + store_time + produce_time}'
@@ -13,16 +13,16 @@ end_time = '${fparse inject_time + store_time + produce_time}'
 start_injection = 0
 end_injection = '${fparse start_injection + inject_time}'
 
-start_production = '${fparse end_injection + store_time}'
-end_production = '${fparse start_production + produce_time}'
+# start_production = '${fparse end_injection + store_time}'
+# end_production = '${fparse start_production + produce_time}'
 
 # Time in seconds (used in inputs below)
 inject_time_s = '${fparse inject_time * 86400}'
 produce_time_s = '${fparse produce_time * 86400}'
 start_injection_s = '${fparse start_injection * 86400}'
 end_injection_s = '${fparse end_injection * 86400}'
-start_production_s = '${fparse start_production * 86400}'
-end_production_s = '${fparse end_production * 86400}'
+# start_production_s = '${fparse start_production * 86400}'
+# end_production_s = '${fparse end_production * 86400}'
 end_time_s = '${fparse end_time * 86400}'
 
 # Mesh details
@@ -164,20 +164,20 @@ xnacl = 0.1
 []
 
 [Controls]
-  [inject]
-    type = TimePeriod
-    enable_objects = 'BCs::inject_h2'
-    start_time = ${start_injection_s}
-    end_time = ${end_injection_s}
-    set_sync_times = true
-    execute_on = 'initial timestep_begin'
-    implicit = false
-  []
+  # [inject]
+  #   type = TimePeriod
+  #   enable_objects = 'BCs::inject_h2'
+  #   start_time = ${start_injection_s}
+  #   end_time = ${end_injection_s}
+  #   set_sync_times = true
+  #   execute_on = 'initial timestep_begin'
+  #   implicit = false
+  # []
   [produce]
     type = TimePeriod
     enable_objects = 'BCs::produce_h2 BCs::produce_brine'
-    start_time = ${start_production_s}
-    end_time = ${end_production_s}
+    start_time = ${start_injection_s}
+    end_time = ${end_injection_s}
     set_sync_times = true
     execute_on = 'initial timestep_begin'
     implicit = false
@@ -187,7 +187,7 @@ xnacl = 0.1
 [Functions]
   [insitu_pressure]
     type = ParsedFunction
-    value = '(y-${depth} * 1100 * ${gravity} * 1E5)'
+    expression = '(y-${depth} * 1100 * ${gravity} + 1E5)'
   []
   [insitu_temperature]
     type = ParsedFunction
@@ -307,10 +307,12 @@ xnacl = 0.1
 
 [FluidProperties]
   [h2]
-    type = HydrogenFluidProperties
+    type = HystreHydrogenFluidProperties
+    # type = HydrogenFluidProperties
   []
   [h2tab]
-    type = TabulatedBicubicFluidProperties
+    type = HystreTabulatedFluidProperties
+    # type = TabulatedBicubicFluidProperties
     fp = h2
   []
   [water]
