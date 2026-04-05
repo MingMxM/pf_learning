@@ -1,8 +1,7 @@
-# H2 injection in a brine aquifer
-# basic case is from cpgr/hystre github
+# CO2 injection in a brine aquifer
 
 # Injection schedule
-# Inject 10,000 kg H2 over 5 days, then store for 30 days, then produce for 10 days
+# Inject 10,000 kg CO2 over 5 days, then store for 30 days, then produce for 10 days
 inject_mass = 1E4
 inject_time = 5
 store_time = 5
@@ -96,9 +95,9 @@ xnacl = 0.1
         sat_lr = 0.1
     []
     [fs]
-        type = PorousFlowBrineH2
+        type = PorousFlowBrineCO2
+        co2_fp = co2Tab
         brine_fp = brine
-        h2_fp = h2tab
         capillary_pressure = pc
     []
 []
@@ -133,7 +132,7 @@ xnacl = 0.1
     function = insitu_pressure
     boundary = right
   []
-  [inject_h2]
+  [inject_co2]
     type = PorousFlowSink
     boundary = left
     variable = zi
@@ -141,7 +140,7 @@ xnacl = 0.1
     fluid_phase = 1
     enable = false
   []
-  [produce_h2]
+  [produce_co2]
     type = PorousFlowSink
     boundary = left
     variable = zi
@@ -149,7 +148,7 @@ xnacl = 0.1
     fluid_phase = 1
     enable = false
     use_relperm = true
-    # mass_fraction_component = 1
+    mass_fraction_component = 1
   []
   [produce_brine]
     type = PorousFlowSink
@@ -158,8 +157,8 @@ xnacl = 0.1
     flux_function = production_rate
     fluid_phase = 0
     enable = false
-    # use_relperm = true
-    # mass_fraction_component = 0
+    use_relperm = true
+    mass_fraction_component = 0
   []
 []
 
@@ -176,7 +175,7 @@ xnacl = 0.1
   [produce]
     type = TimePeriod
     # enable_objects = 'BCs::produce_h2 BCs::produce_brine'
-    enable_objects = 'BCs::produce_h2'
+    enable_objects = 'BCs::produce_co2'
     start_time = ${start_injection_s}
     end_time = ${end_injection_s}
     set_sync_times = true
@@ -246,7 +245,7 @@ xnacl = 0.1
     order = CONSTANT
     family = MONOMIAL
   []
-  [xH2]
+  [xco2]
     order = CONSTANT
     family = MONOMIAL
   []
@@ -288,10 +287,10 @@ xnacl = 0.1
     phase = 1
     execute_on = 'initial timestep_end'
   []
-  [xH2]
+  [xco2]
     type = PorousFlowPropertyAux
     property = mass_fraction
-    variable = xH2
+    variable = xco2
     phase = 0
     fluid_component = 1
     execute_on = 'initial timestep_end'
@@ -307,14 +306,15 @@ xnacl = 0.1
 []
 
 [FluidProperties]
-  [h2]
-    type = HystreHydrogenFluidProperties
-    # type = HydrogenFluidProperties
+  [co2]
+    type = CO2FluidProperties
   []
-  [h2tab]
-    type = HystreTabulatedFluidProperties
-    # type = TabulatedBicubicFluidProperties
-    fp = h2
+  [co2Tab]
+    type = TabulatedBicubicFluidProperties
+    fp = co2
+    fluid_property_file = fluid_properties.csv
+    allow_fp_and_tabulation = true
+    error_on_out_of_bounds = false
   []
   [water]
     type = Water97FluidProperties
@@ -334,7 +334,7 @@ xnacl = 0.1
     type = PorousFlowTemperature
     temperature = temperature
   []
-  [brineh2]
+  [brineco2]
     type = PorousFlowFluidState
     capillary_pressure = pc
     fluid_state = fs
@@ -342,16 +342,6 @@ xnacl = 0.1
     z = zi
     temperature_unit = Celsius
     xnacl = xnacl
-  []
-  [brineh2_at_node]
-    type = PorousFlowFluidState
-    capillary_pressure = pc
-    fluid_state = fs
-    gas_porepressure = pgas
-    z = zi
-    temperature_unit = Celsius
-    xnacl = xnacl
-    at_nodes = true
   []
   [porosity]
     type = PorousFlowPorosityConst
@@ -368,14 +358,6 @@ xnacl = 0.1
     s_res = 0.1
     sum_s_res = 0.15
   []
-  [relperm_liquid_at_node]
-    type = PorousFlowRelativePermeabilityVG
-    m = 0.5
-    phase = 0
-    s_res = 0.1
-    sum_s_res = 0.15
-    at_nodes = true
-  []
   [relperm_gas]
     type = PorousFlowRelativePermeabilityCorey
     n = 2
@@ -383,18 +365,10 @@ xnacl = 0.1
     s_res = 0.05
     sum_s_res = 0.15
   []
-  [relperm_gas_at_node]
-    type = PorousFlowRelativePermeabilityCorey
-    n = 2
-    phase = 1
-    s_res = 0.05
-    sum_s_res = 0.15
-    at_nodes = true
-  []
 []
 
 [Postprocessors]
-  [massH2]
+  [massco2]
     type = PorousFlowFluidMass
     fluid_component = 1
   []
